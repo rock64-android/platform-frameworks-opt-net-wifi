@@ -5887,6 +5887,8 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
                             loge("Failed to start HAL");
                         }
 
+                        maybeRegisterNetworkFactory();//Make sure NetworkFactory registered before supplicant started
+
                         if (mWifiNative.startSupplicant(mP2pSupported)) {
                             setWifiState(WIFI_STATE_ENABLING);
                             if (DBG) log("Supplicant start successful");
