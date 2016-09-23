@@ -411,6 +411,7 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
 
     // Wakelock held during wifi start/stop and driver load/unload
     private PowerManager.WakeLock mWakeLock;
+    private PowerManager.WakeLock mSoftApWakeLock;
 
     private Context mContext;
 
@@ -1304,6 +1305,7 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
 
         PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getName());
+	mSoftApWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SoftAp");
 
         mSuspendWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WifiSuspend");
         mSuspendWakeLock.setReferenceCounted(false);
@@ -5408,6 +5410,10 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
                 }
                 if (DBG) log("Soft AP start successful");
                 sendMessage(CMD_START_AP_SUCCESS);
+                if(!mSoftApWakeLock.isHeld()) {
+                    loge("---- mSoftApWakeLock.acquire ----");
+                    mSoftApWakeLock.acquire();
+                }
             }
         }).start();
     }
@@ -9828,6 +9834,10 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
             switch(message.what) {
                 case CMD_STOP_AP:
                     if (DBG) log("Stopping Soft AP");
+                    if(mSoftApWakeLock.isHeld()) {
+                        loge("---- mSoftApWakeLock.release ----");
+                        mSoftApWakeLock.release();
+                    }
                     /* We have not tethered at this point, so we just shutdown soft Ap */
                     try {
                         mNwService.stopAccessPoint(mInterfaceName);
@@ -9920,6 +9930,10 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiPno
                     return HANDLED;
                 case CMD_STOP_AP:
                     if (DBG) log("Untethering before stopping AP");
+		    if(mSoftApWakeLock.isHeld()) {
+			loge("---- mSoftApWakeLock.release ----");
+			mSoftApWakeLock.release();
+		    }
                     setWifiApState(WIFI_AP_STATE_DISABLING, 0);
                     stopTethering();
                     transitionTo(mUntetheringState);
