@@ -188,6 +188,8 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
 
     private WifiP2pDevice mThisDevice = new WifiP2pDevice();
 
+    private WifiP2pDevice mConnectedDevice;
+
     /* When a group has been explicitly created by an app, we persist the group
      * even after all clients have been disconnected until an explicit remove
      * is invoked */
@@ -1666,6 +1668,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
                         WifiP2pDevice peer = mPeers.get(groupOwner.deviceAddress);
                         if (peer != null) {
                             // update group owner details with peer details found at discovery
+                            mConnectedDevice = groupOwner;
                             groupOwner.updateSupplicantDetails(peer);
                             mPeers.updateStatus(groupOwner.deviceAddress, WifiP2pDevice.CONNECTED);
                             sendPeersChangedBroadcast();
@@ -1870,6 +1873,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
                         }
                         mPeers.updateStatus(deviceAddress, WifiP2pDevice.CONNECTED);
                         if (DBG) logd(getName() + " ap sta connected");
+                        mConnectedDevice = device;
                         sendPeersChangedBroadcast();
                     } else {
                         loge("Connect on null device address, ignore");
@@ -2197,6 +2201,7 @@ public final class WifiP2pServiceImpl extends IWifiP2pManager.Stub {
         intent.putExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO, new WifiP2pInfo(mWifiP2pInfo));
         intent.putExtra(WifiP2pManager.EXTRA_NETWORK_INFO, new NetworkInfo(mNetworkInfo));
         intent.putExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP, new WifiP2pGroup(mGroup));
+        intent.putExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE, new WifiP2pDevice(mConnectedDevice));
         mContext.sendStickyBroadcastAsUser(intent, UserHandle.ALL);
         mWifiChannel.sendMessage(WifiP2pServiceImpl.P2P_CONNECTION_CHANGED,
                 new NetworkInfo(mNetworkInfo));
