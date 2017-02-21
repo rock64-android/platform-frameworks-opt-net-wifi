@@ -137,12 +137,13 @@ public class SoftApManager {
              * Country code is mandatory for 5GHz band, return an error if failed to set
              * country code when AP is configured for 5GHz band.
              */
-            if (!mWifiNative.setCountryCodeHal(mCountryCode.toUpperCase(Locale.ROOT))
+
+            /*if (!mWifiNative.setCountryCodeHal(mCountryCode.toUpperCase(Locale.ROOT))
                     && config.apBand == WifiConfiguration.AP_BAND_5GHZ) {
                 Log.e(TAG, "Failed to set country code, required for setting up "
                         + "soft ap in 5GHz");
                 return ERROR_GENERIC;
-            }
+            }*/
         }
 
         try {
