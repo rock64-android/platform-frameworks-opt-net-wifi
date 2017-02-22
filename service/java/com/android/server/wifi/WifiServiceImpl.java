@@ -408,7 +408,10 @@ public class WifiServiceImpl extends IWifiManager.Stub {
 
         // If we are already disabled (could be due to airplane mode), avoid changing persist
         // state here
-        if (wifiEnabled) setWifiEnabled(wifiEnabled);
+	int wifiap_on =  Settings.Global.getInt(mContext.getContentResolver(), Settings.Global.WIFIAP_ON, 0);
+	if(wifiap_on == 1) {
+		setWifiApEnabled(getWifiApConfiguration(),true);
+	} else if (wifiEnabled) setWifiEnabled(wifiEnabled);
     }
 
     public void handleUserSwitch(int userId) {
@@ -598,6 +601,7 @@ public class WifiServiceImpl extends IWifiManager.Stub {
         }
         // null wifiConfig is a meaningful input for CMD_SET_AP
         if (wifiConfig == null || isValid(wifiConfig)) {
+            Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.WIFIAP_ON, enabled ? 1 : 0);
             mWifiController.obtainMessage(CMD_SET_AP, enabled ? 1 : 0, 0, wifiConfig).sendToTarget();
         } else {
             Slog.e(TAG, "Invalid WifiConfiguration");
