@@ -616,7 +616,7 @@ public class WifiConfigStore {
         if (config.SSID != null && !mWifiNative.setNetworkVariable(
                 netId,
                 WifiConfiguration.ssidVarName,
-                encodeSSID(config.SSID))) {
+		config.SSID)) {
             loge("failed to set SSID: " + config.SSID);
             return false;
         }
