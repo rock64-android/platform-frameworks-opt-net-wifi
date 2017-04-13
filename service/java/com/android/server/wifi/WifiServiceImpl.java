@@ -425,6 +425,7 @@ public class WifiServiceImpl extends IWifiManager.Stub {
             } catch (RemoteException e) {
                 /* ignore - local call */
             }
+	}
     }
 
     public void handleUserSwitch(int userId) {
